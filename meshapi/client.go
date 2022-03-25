@@ -1,6 +1,7 @@
-package meshstack
+package meshapi
 
 import (
+	"bytes"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -28,7 +29,7 @@ func NewClient(h http.Header, port int, hostname, version string) *Client {
 
 	urlstr := fmt.Sprintf("%s:%d", hostname, port)
 	if u, err := url.Parse(urlstr); err != nil {
-		panic("Could not init Provider client to meshStack API")
+		panic("Could not init Provider client to meshapi API")
 	} else {
 		client.BaseUrl = u
 	}
@@ -40,7 +41,6 @@ func NewClient(h http.Header, port int, hostname, version string) *Client {
 	return client
 }
 
-// HTTP GET - /details?name=${name}
 func (c *Client) executeGetAPI(baseURL string, apiUri string, resourceName string, resourceHeaders http.Header) (b []byte, err error) {
 	path := fmt.Sprintf("%s/%s/%s", baseURL, apiUri, resourceName)
 	req, err := http.NewRequest(http.MethodGet, path, nil)
@@ -77,15 +77,18 @@ func (c *Client) executeGetAPI(baseURL string, apiUri string, resourceName strin
 	return
 }
 
-// HTTP PUT - /name?resource_type=${type}&region=${region}
-func (c *Client) doAllocateName(baseURL, resourceType, region string) (b []byte, err error) {
-	path := fmt.Sprintf("http://%s/name", baseURL)
-	req, err := http.NewRequest(http.MethodPut, path, nil)
+func (c *Client) executePutAPI(baseURL string, jsonBody string, resourceHeaders http.Header) (b []byte, err error) {
+	path := fmt.Sprintf("%s/api/meshobjects", baseURL)
+	req, err := http.NewRequest(http.MethodPut, path, bytes.NewBuffer([]byte(jsonBody)))
 	if err != nil {
 		return nil, err
 	}
-	req.URL.RawQuery = fmt.Sprintf("resource_type=%s&region=%s", resourceType, region)
+
 	for name, value := range c.headers {
+		req.Header.Add(name, strings.Join(value, ""))
+	}
+
+	for name, value := range resourceHeaders {
 		req.Header.Add(name, strings.Join(value, ""))
 	}
 
@@ -93,20 +96,17 @@ func (c *Client) doAllocateName(baseURL, resourceType, region string) (b []byte,
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("Unable to issue name allocation API call: %s", err.Error())
-	}
-	if resp.Header.Get("Content-Type") != "application/json" {
-		return nil, fmt.Errorf("Content-Type of HTTP response is invalid")
+		return nil, fmt.Errorf("Unable to meshObject Declarative Import API call: %s", err.Error())
 	}
 
 	b, err = ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return nil, fmt.Errorf("Cannot parse response from name allocation API: %s", err.Error())
+		return nil, fmt.Errorf("Cannot parse response from Declarative Import API: %s", err.Error())
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
-		return nil, fmt.Errorf("Name allocation API returned HTTP status code %d", resp.StatusCode)
+		return nil, fmt.Errorf("Declarative Import API returned HTTP status code %d", resp.StatusCode)
 	}
 
 	log.Printf("Raw output: %v\n", string(b))

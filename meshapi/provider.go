@@ -1,4 +1,4 @@
-package meshstack
+package meshapi
 
 import (
 	"log"
@@ -34,10 +34,12 @@ func Provider() terraform.ResourceProvider {
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
-			"customer": getCustomerSchema(),
+			"mesh_customer": dataSourceMeshCustomerSchema(),
 		},
 
-		ResourcesMap: map[string]*schema.Resource{},
+		ResourcesMap: map[string]*schema.Resource{
+			"mesh_project": resourceMeshProjectSchema(),
+		},
 	}
 }
 

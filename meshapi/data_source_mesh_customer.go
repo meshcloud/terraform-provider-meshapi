@@ -1,4 +1,4 @@
-package meshstack
+package meshapi
 
 import (
 	"encoding/json"
@@ -8,9 +8,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 )
 
-func getCustomerSchema() *schema.Resource {
+func dataSourceMeshCustomerSchema() *schema.Resource {
 	return &schema.Resource{
-		Read: getCustomerDataSourceRead,
+		Read: dataSourceMeshCustomerRead,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -33,16 +33,12 @@ func getCustomerSchema() *schema.Resource {
 	}
 }
 
-func getCustomerDataSourceRead(d *schema.ResourceData, meta interface{}) (err error) {
+func dataSourceMeshCustomerRead(d *schema.ResourceData, meta interface{}) (err error) {
 	provider := meta.(ProviderClient)
 	client := provider.Client
 
-	// Accept = "application/vnd.meshcloud.api.meshcustomer.v1.hal+json"
-	// Content-Type = "application/vnd.meshcloud.api.meshobjectcollection.v1+json;charset=UTF-8"
-
 	resourceHeaders := make(http.Header)
 	resourceHeaders.Set("Accept", "application/vnd.meshcloud.api.meshcustomer.v1.hal+json")
-	resourceHeaders.Set("Content-Type", "application/vnd.meshcloud.api.meshobjectcollection.v1+json;charset=UTF-8")
 
 	resourceName := d.Get("name").(string)
 	if resourceName == "" {
@@ -52,7 +48,7 @@ func getCustomerDataSourceRead(d *schema.ResourceData, meta interface{}) (err er
 	if err != nil {
 		return
 	}
-	outputs, err := flattenCustomerResponse(b)
+	outputs, err := flattenMeshCustomerResponse(b)
 	if err != nil {
 		return
 	}
@@ -61,7 +57,7 @@ func getCustomerDataSourceRead(d *schema.ResourceData, meta interface{}) (err er
 	return
 }
 
-func flattenCustomerResponse(b []byte) (outputs map[string]interface{}, err error) {
+func flattenMeshCustomerResponse(b []byte) (outputs map[string]interface{}, err error) {
 	var data map[string]interface{}
 	var tags interface{}
 
