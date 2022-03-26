@@ -4,13 +4,18 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func dataSourceMeshCustomerSchema() *schema.Resource {
+func dataSourceMeshProjectSchema() *schema.Resource {
 	return &schema.Resource{
-		Description: "meshCustomer Datasource",
-		Read:        commonMeshCustomerRead,
+		Description: "meshProject Datasource",
+		Read:        commonMeshProjectRead,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
+				Required: true,
+				Type:     schema.TypeString,
+				Elem:     schema.TypeString,
+			},
+			"customer_id": {
 				Required: true,
 				Type:     schema.TypeString,
 				Elem:     schema.TypeString,

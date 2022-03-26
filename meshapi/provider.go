@@ -13,19 +13,19 @@ func Provider() *schema.Provider {
 
 		Schema: map[string]*schema.Schema{
 			"api_version": {
-				Type:     schema.TypeString,
 				Optional: true,
+				Type:     schema.TypeString,
 				Default:  "v1",
 			},
 
-			"hostname": {
-				Type:     schema.TypeString,
+			"url": {
 				Required: true,
+				Type:     schema.TypeString,
 			},
 
 			"headers": {
-				Type:     schema.TypeMap,
 				Optional: true,
+				Type:     schema.TypeMap,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
@@ -34,6 +34,7 @@ func Provider() *schema.Provider {
 
 		DataSourcesMap: map[string]*schema.Resource{
 			"meshapi_mesh_customer": dataSourceMeshCustomerSchema(),
+			"meshapi_mesh_project":  dataSourceMeshProjectSchema(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
@@ -47,22 +48,6 @@ type ProviderClient struct {
 	ApiVersion string
 	Hostname   string
 	Client     *Client
-}
-
-// marshalData is used to ensure the data is put into a format Terraform can output
-func marshalData(d *schema.ResourceData, vals map[string]interface{}) {
-	for k, v := range vals {
-		if k == "id" {
-			d.SetId(v.(string))
-		} else {
-			str, ok := v.(string)
-			if ok {
-				d.Set(k, str)
-			} else {
-				d.Set(k, v)
-			}
-		}
-	}
 }
 
 // newProviderClient is a factory for creating ProviderClient structs
@@ -83,7 +68,7 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		log.Println("Defaulting environment in URL config to use API default version...")
 	}
 
-	hostname := d.Get("hostname").(string)
+	hostname := d.Get("url").(string)
 	if hostname == "" {
 		log.Println("Defaulting environment in URL config to use API default hostname...")
 		hostname = "localhost"
