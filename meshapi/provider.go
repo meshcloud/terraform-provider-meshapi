@@ -4,11 +4,10 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func Provider() terraform.ResourceProvider {
+func Provider() *schema.Provider {
 	return &schema.Provider{
 		ConfigureFunc: providerConfigure,
 
@@ -34,11 +33,11 @@ func Provider() terraform.ResourceProvider {
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
-			"mesh_customer": dataSourceMeshCustomerSchema(),
+			"meshapi_mesh_customer": dataSourceMeshCustomerSchema(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
-			"mesh_project": resourceMeshProjectSchema(),
+			"meshapi_mesh_project": resourceMeshProjectSchema(),
 		},
 	}
 }
@@ -91,8 +90,6 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	}
 
 	h := make(http.Header)
-	h.Set("Content-Type", "application/json")
-	h.Set("Accept", "application/json")
 
 	headers, exists := d.GetOk("headers")
 	if exists {

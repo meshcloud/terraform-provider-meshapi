@@ -5,12 +5,13 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func dataSourceMeshCustomerSchema() *schema.Resource {
 	return &schema.Resource{
-		Read: dataSourceMeshCustomerRead,
+		Description: "Get meshCustomer data",
+		Read:        dataSourceMeshCustomerRead,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -41,9 +42,6 @@ func dataSourceMeshCustomerRead(d *schema.ResourceData, meta interface{}) (err e
 	resourceHeaders.Set("Accept", "application/vnd.meshcloud.api.meshcustomer.v1.hal+json")
 
 	resourceName := d.Get("name").(string)
-	if resourceName == "" {
-		return fmt.Errorf("Customer name is required!")
-	}
 	b, err := client.executeGetAPI(client.BaseUrl.String(), "api/meshobjects/meshcustomers", resourceName, resourceHeaders)
 	if err != nil {
 		return

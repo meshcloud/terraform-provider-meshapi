@@ -3,9 +3,10 @@ package meshapi
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
 func resourceMeshProjectSchema() *schema.Resource {
@@ -13,27 +14,29 @@ func resourceMeshProjectSchema() *schema.Resource {
 		Read:   resourceMeshProjectRead,
 		Create: resourceMeshProjectCreate,
 		Update: resourceMeshProjectUpdate,
-		Delete: resourceMeshProjectDelete,
+		Delete: schema.Noop,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Type:     schema.TypeString,
 				Required: true,
+				ForceNew: true,
+				Type:     schema.TypeString,
 				Elem:     schema.TypeString,
 			},
 			"customer_id": {
-				Type:     schema.TypeString,
 				Required: true,
+				ForceNew: true,
+				Type:     schema.TypeString,
 				Elem:     schema.TypeString,
 			},
 			"display_name": {
-				Type:     schema.TypeString,
 				Required: true,
+				Type:     schema.TypeString,
 				Elem:     schema.TypeString,
 			},
 			"tags": {
-				Type:     schema.TypeString,
 				Optional: true,
+				Type:     schema.TypeString,
 				Elem:     schema.TypeString,
 			},
 		},
@@ -51,15 +54,10 @@ func resourceMeshProjectRead(d *schema.ResourceData, meta interface{}) (err erro
 
 	resourceHeaders := make(http.Header)
 	resourceHeaders.Set("Accept", "application/vnd.meshcloud.api.meshproject.v1.hal+json")
-	resourceName := d.Get("name").(string)
-	if resourceName == "" {
-		return fmt.Errorf("Project name is required!")
-	}
 
+	resourceName := d.Get("name").(string)
 	resourceCustomerId := d.Get("customer_id").(string)
-	if resourceCustomerId == "" {
-		return fmt.Errorf("Customer Id is required!")
-	}
+
 	b, err := client.executeGetAPI(client.BaseUrl.String(), "api/meshobjects/meshprojects", fmt.Sprintf("%s.%s", resourceCustomerId, resourceName), resourceHeaders)
 	if err != nil {
 		return
@@ -71,97 +69,6 @@ func resourceMeshProjectRead(d *schema.ResourceData, meta interface{}) (err erro
 	marshalData(d, outputs)
 
 	return
-}
-
-func resourceMeshProjectCreate(d *schema.ResourceData, meta interface{}) (err error) {
-	provider := meta.(ProviderClient)
-	client := provider.Client
-
-	resourceHeaders := make(http.Header)
-	resourceHeaders.Set("Accept", "application/vnd.meshcloud.api.meshobjects.v1+json")
-	resourceHeaders.Set("Content-Type", "application/vnd.meshcloud.api.meshobjects.v1+json;charset=UTF-8")
-
-	resourceName := d.Get("name").(string)
-	if resourceName == "" {
-		return fmt.Errorf("Project name is required!")
-	}
-
-	resourceDisplayName := d.Get("display_name").(string)
-	if resourceDisplayName == "" {
-		return fmt.Errorf("Project display_name is required!")
-	}
-
-	resourceCustomerId := d.Get("customer_id").(string)
-	if resourceCustomerId == "" {
-		return fmt.Errorf("Customer Id is required!")
-	}
-
-	data := fmt.Sprintf(`{
-		"apiVersion": "v1",
-		"kind": "meshProject",
-		"metadata": {
-		  "name": "%s",
-		  "ownedByCustomer": "%s"
-		},
-		"spec": {
-		  "displayName": "%s",
-		  "tags": {
-			"Environment": [ "Playground" ],
-			"AccessLevel: [ "internal" ],
-			"ProjectContact": "dakinci@meshcloud.io"
-		  }
-		}
-	  }`, resourceName, resourceCustomerId, resourceDisplayName)
-
-	b, err := client.executePutAPI(client.BaseUrl.String(), string(data), resourceHeaders)
-	if err != nil {
-		return
-	}
-
-	outputs, err := flattenResourceMeshProjectResponse(b)
-	if err != nil {
-		return
-	}
-	marshalData(d, outputs)
-
-	return
-}
-
-func resourceMeshProjectUpdate(d *schema.ResourceData, meta interface{}) (err error) {
-	provider := meta.(ProviderClient)
-	client := provider.Client
-
-	resourceHeaders := make(http.Header)
-	resourceHeaders.Set("Accept", "application/vnd.meshcloud.api.meshobjects.v1+json")
-	resourceHeaders.Set("Content-Type", "application/vnd.meshcloud.api.meshobjects.v1+json;charset=UTF-8")
-
-	resourceName := d.Get("name").(string)
-	if resourceName == "" {
-		return fmt.Errorf("Project name is required!")
-	}
-	resourceDisplayName := d.Get("display_name").(string)
-	if resourceDisplayName == "" {
-		return fmt.Errorf("Project display_name is required!")
-	}
-
-	m := MeshProject{resourceName, resourceDisplayName}
-	data, err := json.Marshal(m)
-
-	b, err := client.executePutAPI(client.BaseUrl.String(), string(data), resourceHeaders)
-	if err != nil {
-		return
-	}
-	outputs, err := flattenResourceMeshProjectResponse(b)
-	if err != nil {
-		return
-	}
-	marshalData(d, outputs)
-
-	return
-}
-
-func resourceMeshProjectDelete(d *schema.ResourceData, meta interface{}) (err error) {
-	return nil
 }
 
 func flattenResourceMeshProjectResponse(b []byte) (outputs map[string]interface{}, err error) {
@@ -185,7 +92,75 @@ func flattenResourceMeshProjectResponse(b []byte) (outputs map[string]interface{
 	outputs = make(map[string]interface{})
 	outputs["id"] = data["metadata"].(map[string]interface{})["name"]
 	outputs["name"] = data["metadata"].(map[string]interface{})["name"]
+	outputs["customer_id"] = data["metadata"].(map[string]interface{})["ownedByCustomer"]
 	outputs["display_name"] = data["spec"].(map[string]interface{})["displayName"]
 	outputs["tags"] = string(tags.([]byte))
 	return
+}
+
+func resourceMeshProjectCreate(d *schema.ResourceData, meta interface{}) (err error) {
+	provider := meta.(ProviderClient)
+	client := provider.Client
+
+	resourceHeaders := make(http.Header)
+	resourceHeaders.Set("Accept", "application/vnd.meshcloud.api.meshobjects.v1+json")
+	resourceHeaders.Set("Content-Type", "application/vnd.meshcloud.api.meshobjects.v1+json;charset=UTF-8")
+
+	resourceName := d.Get("name").(string)
+	resourceDisplayName := d.Get("display_name").(string)
+	resourceCustomerId := d.Get("customer_id").(string)
+	resourceTags := d.Get("tags").(string)
+
+	data := fmt.Sprintf(`{"apiVersion":"v1","kind":"meshProject","metadata":{"name":"%s","ownedByCustomer":"%s"},"spec":{"displayName":"%s","tags":%s}}`, resourceName, resourceCustomerId, resourceDisplayName, resourceTags)
+
+	log.Printf("[DEBUG] MeshProject Create: %s", data)
+	response, err := client.executePutAPI(client.BaseUrl.String(), string(data), resourceHeaders)
+
+	log.Printf("[DEBUG] MeshProject Execute PutAPI Response: %s", response)
+
+	if err != nil {
+		d.SetId("")
+		return fmt.Errorf("Error creating MeshProject: %s", err)
+	}
+
+	d.SetId(resourceName)
+	d.Set("name", resourceName)
+	d.Set("display_name", resourceDisplayName)
+	d.Set("customer_id", resourceCustomerId)
+	d.Set("tags", resourceTags)
+	return
+}
+
+func resourceMeshProjectUpdate(d *schema.ResourceData, meta interface{}) (err error) {
+	provider := meta.(ProviderClient)
+	client := provider.Client
+
+	resourceHeaders := make(http.Header)
+	resourceHeaders.Set("Accept", "application/vnd.meshcloud.api.meshobjects.v1+json")
+	resourceHeaders.Set("Content-Type", "application/vnd.meshcloud.api.meshobjects.v1+json;charset=UTF-8")
+
+	resourceName := d.Get("name").(string)
+	resourceDisplayName := d.Get("display_name").(string)
+	resourceCustomerId := d.Get("customer_id").(string)
+	resourceTags := d.Get("tags").(string)
+
+	data := fmt.Sprintf(`{"apiVersion":"v1","kind":"meshProject","metadata":{"name":"%s","ownedByCustomer":"%s"},"spec":{"displayName":"%s","tags":%s}}`, resourceName, resourceCustomerId, resourceDisplayName, resourceTags)
+
+	log.Printf("[DEBUG] MeshProject Create: %s", data)
+	response, err := client.executePutAPI(client.BaseUrl.String(), string(data), resourceHeaders)
+
+	log.Printf("[DEBUG] MeshProject Execute PutAPI Response: %s", response)
+
+	if err != nil {
+		d.SetId("")
+		return fmt.Errorf("Error creating MeshProject: %s", err)
+	}
+
+	d.SetId(resourceName)
+	d.Set("name", resourceName)
+	d.Set("display_name", resourceDisplayName)
+	d.Set("customer_id", resourceCustomerId)
+	d.Set("tags", resourceTags)
+	return
+
 }
