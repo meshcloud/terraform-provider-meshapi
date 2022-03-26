@@ -38,7 +38,8 @@ func Provider() *schema.Provider {
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
-			"meshapi_mesh_project": resourceMeshProjectSchema(),
+			"meshapi_mesh_project":  resourceMeshProjectSchema(),
+			"meshapi_mesh_customer": resourceMeshCustomerSchema(),
 		},
 	}
 }
@@ -46,17 +47,17 @@ func Provider() *schema.Provider {
 // ProviderClient holds metadata / config for use by Terraform resources
 type ProviderClient struct {
 	ApiVersion string
-	Hostname   string
+	Url        string
 	Client     *Client
 }
 
 // newProviderClient is a factory for creating ProviderClient structs
-func newProviderClient(apiVersion, hostname string, headers http.Header) (ProviderClient, error) {
+func newProviderClient(apiVersion, url string, headers http.Header) (ProviderClient, error) {
 	p := ProviderClient{
 		ApiVersion: apiVersion,
-		Hostname:   hostname,
+		Url:        url,
 	}
-	p.Client = NewClient(headers, 443, hostname, apiVersion)
+	p.Client = NewClient(headers, 443, url, apiVersion)
 
 	return p, nil
 }
@@ -65,13 +66,13 @@ func newProviderClient(apiVersion, hostname string, headers http.Header) (Provid
 func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	apiVersion := d.Get("api_version").(string)
 	if apiVersion == "" {
-		log.Println("Defaulting environment in URL config to use API default version...")
+		log.Println("No api version provided, default value will be used.")
 	}
 
-	hostname := d.Get("url").(string)
-	if hostname == "" {
-		log.Println("Defaulting environment in URL config to use API default hostname...")
-		hostname = "localhost"
+	url := d.Get("url").(string)
+	if url == "" {
+		log.Println("Set Url to the localhost.")
+		url = "localhost"
 	}
 
 	h := make(http.Header)
@@ -83,5 +84,5 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		}
 	}
 
-	return newProviderClient(apiVersion, hostname, h)
+	return newProviderClient(apiVersion, url, h)
 }

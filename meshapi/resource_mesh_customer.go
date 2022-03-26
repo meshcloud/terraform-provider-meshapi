@@ -8,21 +8,15 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceMeshProjectSchema() *schema.Resource {
+func resourceMeshCustomerSchema() *schema.Resource {
 	return &schema.Resource{
-		Read:   commonMeshProjectRead,
-		Create: resourceMeshProjectCreate,
-		Update: resourceMeshProjectUpdate,
+		Read:   commonMeshCustomerRead,
+		Create: resourceMeshCustomerCreate,
+		Update: resourceMeshCustomerUpdate,
 		Delete: schema.Noop,
 
 		Schema: map[string]*schema.Schema{
 			"name": {
-				Required: true,
-				ForceNew: true,
-				Type:     schema.TypeString,
-				Elem:     schema.TypeString,
-			},
-			"customer_id": {
 				Required: true,
 				ForceNew: true,
 				Type:     schema.TypeString,
@@ -42,7 +36,7 @@ func resourceMeshProjectSchema() *schema.Resource {
 	}
 }
 
-func resourceMeshProjectCreate(d *schema.ResourceData, meta interface{}) (err error) {
+func resourceMeshCustomerCreate(d *schema.ResourceData, meta interface{}) (err error) {
 	provider := meta.(ProviderClient)
 	client := provider.Client
 
@@ -52,29 +46,27 @@ func resourceMeshProjectCreate(d *schema.ResourceData, meta interface{}) (err er
 
 	resourceName := d.Get("name").(string)
 	resourceDisplayName := d.Get("display_name").(string)
-	resourceCustomerId := d.Get("customer_id").(string)
 	resourceTags := d.Get("tags").(string)
 
-	data := fmt.Sprintf(`{"apiVersion":"v1","kind":"meshProject","metadata":{"name":"%s","ownedByCustomer":"%s"},"spec":{"displayName":"%s","tags":%s}}`, resourceName, resourceCustomerId, resourceDisplayName, resourceTags)
+	data := fmt.Sprintf(`{"apiVersion":"v1","kind":"meshCustomer","metadata":{"name":"%s"},"spec":{"displayName":"%s","tags":%s}}`, resourceName, resourceDisplayName, resourceTags)
 
-	log.Printf("[DEBUG] MeshProject Create: %s", data)
+	log.Printf("[DEBUG] MeshCustomer Create: %s", data)
 	response, err := client.executePutAPI(client.BaseUrl.String(), string(data), resourceHeaders)
-	log.Printf("[DEBUG] MeshProject Execute PutAPI Response: %s", response)
+	log.Printf("[DEBUG] MeshCustomer Execute PutAPI Response: %s", response)
 
 	if err != nil {
 		d.SetId("")
-		return fmt.Errorf("Error creating MeshProject: %s", err)
+		return fmt.Errorf("Error creating MeshCustomer: %s", err)
 	}
 
 	d.SetId(resourceName)
 	d.Set("name", resourceName)
 	d.Set("display_name", resourceDisplayName)
-	d.Set("customer_id", resourceCustomerId)
 	d.Set("tags", resourceTags)
 	return
 }
 
-func resourceMeshProjectUpdate(d *schema.ResourceData, meta interface{}) (err error) {
+func resourceMeshCustomerUpdate(d *schema.ResourceData, meta interface{}) (err error) {
 	provider := meta.(ProviderClient)
 	client := provider.Client
 
@@ -84,25 +76,22 @@ func resourceMeshProjectUpdate(d *schema.ResourceData, meta interface{}) (err er
 
 	resourceName := d.Get("name").(string)
 	resourceDisplayName := d.Get("display_name").(string)
-	resourceCustomerId := d.Get("customer_id").(string)
 	resourceTags := d.Get("tags").(string)
 
-	data := fmt.Sprintf(`{"apiVersion":"v1","kind":"meshProject","metadata":{"name":"%s","ownedByCustomer":"%s"},"spec":{"displayName":"%s","tags":%s}}`, resourceName, resourceCustomerId, resourceDisplayName, resourceTags)
+	data := fmt.Sprintf(`{"apiVersion":"v1","kind":"meshCustomer","metadata":{"name":"%s"},"spec":{"displayName":"%s","tags":%s}}`, resourceName, resourceDisplayName, resourceTags)
 
-	log.Printf("[DEBUG] MeshProject Create: %s", data)
+	log.Printf("[DEBUG] MeshCustomer Create: %s", data)
 	response, err := client.executePutAPI(client.BaseUrl.String(), string(data), resourceHeaders)
-
-	log.Printf("[DEBUG] MeshProject Execute PutAPI Response: %s", response)
+	log.Printf("[DEBUG] MeshCustomer Execute PutAPI Response: %s", response)
 
 	if err != nil {
 		d.SetId("")
-		return fmt.Errorf("Error creating MeshProject: %s", err)
+		return fmt.Errorf("Error creating MeshCustomer: %s", err)
 	}
 
 	d.SetId(resourceName)
 	d.Set("name", resourceName)
 	d.Set("display_name", resourceDisplayName)
-	d.Set("customer_id", resourceCustomerId)
 	d.Set("tags", resourceTags)
 	return
 }
