@@ -14,14 +14,13 @@ import (
 var HttpClient *http.Client
 
 type Client struct {
-	apiVersion string
 	BaseUrl    *url.URL
 	httpClient *http.Client
 	headers    http.Header
 }
 
-func NewClient(h http.Header, port int, hostname, version string) *Client {
-	client := &Client{apiVersion: version}
+func NewClient(hostname string, port int, h http.Header) *Client {
+	client := &Client{}
 
 	client.httpClient = &http.Client{
 		Timeout: time.Second * 30,

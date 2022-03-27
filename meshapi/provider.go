@@ -12,12 +12,6 @@ func Provider() *schema.Provider {
 		ConfigureFunc: providerConfigure,
 
 		Schema: map[string]*schema.Schema{
-			"api_version": {
-				Optional: true,
-				Type:     schema.TypeString,
-				Default:  "v1",
-			},
-
 			"url": {
 				Required: true,
 				Type:     schema.TypeString,
@@ -48,29 +42,22 @@ func Provider() *schema.Provider {
 
 // ProviderClient holds metadata / config for use by Terraform resources
 type ProviderClient struct {
-	ApiVersion string
-	Url        string
-	Client     *Client
+	Url    string
+	Client *Client
 }
 
 // newProviderClient is a factory for creating ProviderClient structs
-func newProviderClient(apiVersion, url string, headers http.Header) (ProviderClient, error) {
+func newProviderClient(url string, headers http.Header) (ProviderClient, error) {
 	p := ProviderClient{
-		ApiVersion: apiVersion,
-		Url:        url,
+		Url: url,
 	}
-	p.Client = NewClient(headers, 443, url, apiVersion)
+	p.Client = NewClient(url, 443, headers)
 
 	return p, nil
 }
 
 // providerConfigure parses the config into the Terraform provider meta object
 func providerConfigure(d *schema.ResourceData) (interface{}, error) {
-	apiVersion := d.Get("api_version").(string)
-	if apiVersion == "" {
-		log.Println("No api version provided, default value will be used.")
-	}
-
 	url := d.Get("url").(string)
 	if url == "" {
 		log.Println("Set Url to the localhost.")
@@ -86,5 +73,5 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 		}
 	}
 
-	return newProviderClient(apiVersion, url, h)
+	return newProviderClient(url, h)
 }
