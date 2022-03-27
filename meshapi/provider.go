@@ -29,6 +29,7 @@ func Provider() *schema.Provider {
 		DataSourcesMap: map[string]*schema.Resource{
 			"meshapi_mesh_customer": dataSourceMeshCustomerSchema(),
 			"meshapi_mesh_project":  dataSourceMeshProjectSchema(),
+			"meshapi_mesh_tenant":   dataSourceMeshTenantSchema(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
@@ -36,6 +37,7 @@ func Provider() *schema.Provider {
 			"meshapi_mesh_customer":              resourceMeshCustomerSchema(),
 			"meshapi_mesh_customer_user_binding": resourceMeshCustomerUserBindingSchema(),
 			"meshapi_mesh_project_user_binding":  resourceMeshProjectUserBindingSchema(),
+			"meshapi_mesh_tenant":                resourceMeshTenantSchema(),
 		},
 	}
 }
