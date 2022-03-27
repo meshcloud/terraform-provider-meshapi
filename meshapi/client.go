@@ -41,19 +41,28 @@ func NewClient(h http.Header, port int, hostname, version string) *Client {
 	return client
 }
 
-func (c *Client) executeGetAPI(baseURL string, apiUri string, resourceName string, resourceHeaders http.Header) (b []byte, err error) {
-	path := fmt.Sprintf("%s/%s/%s", baseURL, apiUri, resourceName)
+func (c *Client) executeGetAPI(baseURL string, apiUri string, resourceName string, resourceHeaders http.Header, resourceQueries map[string]string) (b []byte, err error) {
+	var path string
+	if resourceName != "" {
+		path = fmt.Sprintf("%s/%s/%s", baseURL, apiUri, resourceName)
+	} else {
+		path = fmt.Sprintf("%s/%s", baseURL, apiUri)
+	}
 	req, err := http.NewRequest(http.MethodGet, path, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	for name, value := range c.headers {
-		req.Header.Add(name, strings.Join(value, ""))
+	for key, value := range resourceQueries {
+		req.URL.Query().Add(key, value)
 	}
 
-	for name, value := range resourceHeaders {
-		req.Header.Add(name, strings.Join(value, ""))
+	for key, value := range c.headers {
+		req.Header.Add(key, strings.Join(value, ""))
+	}
+
+	for key, value := range resourceHeaders {
+		req.Header.Add(key, strings.Join(value, ""))
 	}
 
 	log.Printf("Calling %s\n", req.URL.String())
@@ -84,12 +93,12 @@ func (c *Client) executePutAPI(baseURL string, jsonBody string, resourceHeaders 
 		return nil, err
 	}
 
-	for name, value := range c.headers {
-		req.Header.Add(name, strings.Join(value, ""))
+	for key, value := range c.headers {
+		req.Header.Add(key, strings.Join(value, ""))
 	}
 
-	for name, value := range resourceHeaders {
-		req.Header.Add(name, strings.Join(value, ""))
+	for key, value := range resourceHeaders {
+		req.Header.Add(key, strings.Join(value, ""))
 	}
 
 	log.Printf("Calling %s\n", req.URL.String())

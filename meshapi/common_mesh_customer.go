@@ -16,7 +16,7 @@ func commonMeshCustomerRead(d *schema.ResourceData, meta interface{}) (err error
 	resourceHeaders.Set("Accept", "application/vnd.meshcloud.api.meshcustomer.v1.hal+json")
 
 	resourceName := d.Get("name").(string)
-	b, err := client.executeGetAPI(client.BaseUrl.String(), "api/meshobjects/meshcustomers", resourceName, resourceHeaders)
+	b, err := client.executeGetAPI(client.BaseUrl.String(), "api/meshobjects/meshcustomers", resourceName, resourceHeaders, nil)
 	if err != nil {
 		return
 	}

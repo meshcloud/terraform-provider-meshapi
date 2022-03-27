@@ -11,8 +11,8 @@ import (
 func resourceMeshProjectSchema() *schema.Resource {
 	return &schema.Resource{
 		Read:   commonMeshProjectRead,
-		Create: resourceMeshProjectCreate,
-		Update: resourceMeshProjectUpdate,
+		Create: resourceMeshProjectCreateAndUpdate,
+		Update: resourceMeshProjectCreateAndUpdate,
 		Delete: schema.Noop,
 
 		Schema: map[string]*schema.Schema{
@@ -42,7 +42,7 @@ func resourceMeshProjectSchema() *schema.Resource {
 	}
 }
 
-func resourceMeshProjectCreate(d *schema.ResourceData, meta interface{}) (err error) {
+func resourceMeshProjectCreateAndUpdate(d *schema.ResourceData, meta interface{}) (err error) {
 	provider := meta.(ProviderClient)
 	client := provider.Client
 
@@ -59,39 +59,6 @@ func resourceMeshProjectCreate(d *schema.ResourceData, meta interface{}) (err er
 
 	log.Printf("[DEBUG] MeshProject Create: %s", data)
 	response, err := client.executePutAPI(client.BaseUrl.String(), string(data), resourceHeaders)
-	log.Printf("[DEBUG] MeshProject Execute PutAPI Response: %s", response)
-
-	if err != nil {
-		d.SetId("")
-		return fmt.Errorf("Error creating MeshProject: %s", err)
-	}
-
-	d.SetId(resourceName)
-	d.Set("name", resourceName)
-	d.Set("display_name", resourceDisplayName)
-	d.Set("customer_id", resourceCustomerId)
-	d.Set("tags", resourceTags)
-	return
-}
-
-func resourceMeshProjectUpdate(d *schema.ResourceData, meta interface{}) (err error) {
-	provider := meta.(ProviderClient)
-	client := provider.Client
-
-	resourceHeaders := make(http.Header)
-	resourceHeaders.Set("Accept", "application/vnd.meshcloud.api.meshobjects.v1+json")
-	resourceHeaders.Set("Content-Type", "application/vnd.meshcloud.api.meshobjects.v1+json;charset=UTF-8")
-
-	resourceName := d.Get("name").(string)
-	resourceDisplayName := d.Get("display_name").(string)
-	resourceCustomerId := d.Get("customer_id").(string)
-	resourceTags := d.Get("tags").(string)
-
-	data := fmt.Sprintf(`{"apiVersion":"v1","kind":"meshProject","metadata":{"name":"%s","ownedByCustomer":"%s"},"spec":{"displayName":"%s","tags":%s}}`, resourceName, resourceCustomerId, resourceDisplayName, resourceTags)
-
-	log.Printf("[DEBUG] MeshProject Create: %s", data)
-	response, err := client.executePutAPI(client.BaseUrl.String(), string(data), resourceHeaders)
-
 	log.Printf("[DEBUG] MeshProject Execute PutAPI Response: %s", response)
 
 	if err != nil {

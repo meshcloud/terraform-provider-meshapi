@@ -18,7 +18,7 @@ func commonMeshProjectRead(d *schema.ResourceData, meta interface{}) (err error)
 	resourceName := d.Get("name").(string)
 	resourceCustomerId := d.Get("customer_id").(string)
 
-	b, err := client.executeGetAPI(client.BaseUrl.String(), "api/meshobjects/meshprojects", fmt.Sprintf("%s.%s", resourceCustomerId, resourceName), resourceHeaders)
+	b, err := client.executeGetAPI(client.BaseUrl.String(), "api/meshobjects/meshprojects", fmt.Sprintf("%s.%s", resourceCustomerId, resourceName), resourceHeaders, nil)
 	if err != nil {
 		return
 	}
