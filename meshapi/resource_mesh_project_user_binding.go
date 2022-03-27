@@ -9,11 +9,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceMeshCustomerUserBindingSchema() *schema.Resource {
+func resourceMeshProjectUserBindingSchema() *schema.Resource {
 	return &schema.Resource{
-		Read:   resourceMeshCustomerUserBindingRead,
-		Create: resourceMeshCustomerUserBindingCreateAndUpdate,
-		Update: resourceMeshCustomerUserBindingCreateAndUpdate,
+		Read:   resourceMeshProjectUserBindingRead,
+		Create: resourceMeshProjectUserBindingCreateAndUpdate,
+		Update: resourceMeshProjectUserBindingCreateAndUpdate,
 		Delete: schema.Noop,
 
 		Schema: map[string]*schema.Schema{
@@ -27,6 +27,11 @@ func resourceMeshCustomerUserBindingSchema() *schema.Resource {
 				Type:     schema.TypeString,
 				Elem:     schema.TypeString,
 			},
+			"project_id": {
+				Required: true,
+				Type:     schema.TypeString,
+				Elem:     schema.TypeString,
+			},
 			"user_id": {
 				Required: true,
 				Type:     schema.TypeString,
@@ -36,12 +41,13 @@ func resourceMeshCustomerUserBindingSchema() *schema.Resource {
 	}
 }
 
-func resourceMeshCustomerUserBindingRead(d *schema.ResourceData, meta interface{}) (err error) {
+func resourceMeshProjectUserBindingRead(d *schema.ResourceData, meta interface{}) (err error) {
 	provider := meta.(ProviderClient)
 	client := provider.Client
 
 	resourceRoleName := d.Get("role_name").(string)
 	resourceCustomerId := d.Get("customer_id").(string)
+	resourceProjectId := d.Get("project_id").(string)
 	resourceUserId := d.Get("user_id").(string)
 
 	resourceHeaders := make(http.Header)
@@ -49,7 +55,8 @@ func resourceMeshCustomerUserBindingRead(d *schema.ResourceData, meta interface{
 
 	resourceQueries := make(map[string]string)
 	resourceQueries["customerIdentifier"] = resourceCustomerId
-	resourceQueries["customerRole"] = resourceRoleName
+	resourceQueries["projectIdentifier"] = resourceProjectId
+	resourceQueries["projectRole"] = resourceRoleName
 
 	response, err := client.executeGetAPI(client.BaseUrl.String(), "api/meshobjects/meshusers", "", resourceHeaders, resourceQueries)
 	if err != nil {
@@ -74,10 +81,11 @@ func resourceMeshCustomerUserBindingRead(d *schema.ResourceData, meta interface{
 	}
 
 	if userExists {
-		d.SetId(resourceCustomerId + "/" + resourceUserId)
-		d.Set("role_name", resourceRoleName)
-		d.Set("customer_id", resourceCustomerId)
+		d.SetId(resourceCustomerId + "/" + resourceProjectId + "/" + resourceUserId)
 		d.Set("user_id", resourceUserId)
+		d.Set("customer_id", resourceCustomerId)
+		d.Set("project_id", resourceProjectId)
+		d.Set("role_name", resourceRoleName)
 	} else {
 		d.SetId("")
 	}
@@ -85,7 +93,7 @@ func resourceMeshCustomerUserBindingRead(d *schema.ResourceData, meta interface{
 	return
 }
 
-func resourceMeshCustomerUserBindingCreateAndUpdate(d *schema.ResourceData, meta interface{}) (err error) {
+func resourceMeshProjectUserBindingCreateAndUpdate(d *schema.ResourceData, meta interface{}) (err error) {
 	provider := meta.(ProviderClient)
 	client := provider.Client
 
@@ -95,22 +103,24 @@ func resourceMeshCustomerUserBindingCreateAndUpdate(d *schema.ResourceData, meta
 
 	resourceRoleName := d.Get("role_name").(string)
 	resourceCustomerId := d.Get("customer_id").(string)
+	resourceProjectId := d.Get("project_id").(string)
 	resourceUserId := d.Get("user_id").(string)
 
-	data := fmt.Sprintf(`{"apiVersion":"v1","kind":"meshCustomerUserBinding","roleRef":{"name":"%s"},"targetRef":{"name":"%s"},"subjects":[{"name":"%s"}]}`, resourceRoleName, resourceCustomerId, resourceUserId)
+	data := fmt.Sprintf(`{"apiVersion":"v1","kind":"meshProjectUserBinding","roleRef":{"name":"%s"},"targetRef":{"name":"%s","ownedByCustomer":"%s"},"subjects":[{"name":"%s"}]}`, resourceRoleName, resourceProjectId, resourceCustomerId, resourceUserId)
 
-	log.Printf("[DEBUG] MeshCustomerUserBinding Create: %s", data)
+	log.Printf("[DEBUG] MeshProjectUserBinding Create: %s", data)
 	response, err := client.executePutAPI(client.BaseUrl.String(), string(data), resourceHeaders)
-	log.Printf("[DEBUG] MeshCustomerUserBinding Execute PutAPI Response: %s", response)
+	log.Printf("[DEBUG] MeshProjectUserBinding Execute PutAPI Response: %s", response)
 
 	if err != nil {
 		d.SetId("")
-		return fmt.Errorf("Error creating MeshCustomerUserBinding: %s", err)
+		return fmt.Errorf("Error creating MeshProjectUserBinding: %s", err)
 	}
 
-	d.SetId(resourceCustomerId + "/" + resourceUserId)
+	d.SetId(resourceCustomerId + "/" + resourceProjectId + "/" + resourceUserId)
 	d.Set("role_name", resourceRoleName)
 	d.Set("customer_id", resourceCustomerId)
+	d.Set("project_id", resourceProjectId)
 	d.Set("user_id", resourceUserId)
 	return
 }
