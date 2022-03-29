@@ -60,6 +60,7 @@ func resourceMeshTenantCreateAndUpdate(d *schema.ResourceData, meta interface{})
 	resourceLandingZoneId := d.Get("landing_zone_id").(string)
 
 	// This part must be rewritten. Currently we do not support quota parameter and landing zone parameter is required.
+	// TODO: Check, is it possible to send empty string values for optional parameters.
 	data := fmt.Sprintf(`{"apiVersion":"v2","kind":"meshTenant","metadata":{"ownedByProject":"%s","ownedByCustomer":"%s","platformIdentifier":"%s"},"spec":{"landingZoneIdentifier":"%s"%s}}`, resourceProjectId, resourceCustomerId, resourcePlatformId, resourceLandingZoneId, `,"localId":"`+resourceTenantId+`"`)
 
 	log.Printf("[DEBUG] MeshTenant Create: %s", data)
