@@ -27,10 +27,11 @@ func Provider() *schema.Provider {
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
-			"meshapi_mesh_customer": dataSourceMeshCustomerSchema(),
-			"meshapi_mesh_project":  dataSourceMeshProjectSchema(),
-			"meshapi_mesh_tenant":   dataSourceMeshTenantSchema(),
-			"meshapi_mesh_user":     dataSourceMeshUserSchema(),
+			"meshapi_mesh_customer":       dataSourceMeshCustomerSchema(),
+			"meshapi_mesh_project":        dataSourceMeshProjectSchema(),
+			"meshapi_mesh_tenant":         dataSourceMeshTenantSchema(),
+			"meshapi_mesh_user":           dataSourceMeshUserSchema(),
+			"meshapi_mesh_payment_method": dataSourceMeshPaymentMethodSchema(),
 		},
 
 		ResourcesMap: map[string]*schema.Resource{
