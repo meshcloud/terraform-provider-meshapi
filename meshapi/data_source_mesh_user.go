@@ -13,22 +13,18 @@ func dataSourceMeshUserSchema() *schema.Resource {
 			"name": {
 				Required: true,
 				Type:     schema.TypeString,
-				Elem:     schema.TypeString,
 			},
 			"email": {
 				Computed: true,
 				Type:     schema.TypeString,
-				Elem:     schema.TypeString,
 			},
 			"first_name": {
 				Computed: true,
 				Type:     schema.TypeString,
-				Elem:     schema.TypeString,
 			},
 			"last_name": {
 				Computed: true,
 				Type:     schema.TypeString,
-				Elem:     schema.TypeString,
 			},
 		},
 	}

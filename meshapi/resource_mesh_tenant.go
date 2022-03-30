@@ -19,27 +19,22 @@ func resourceMeshTenantSchema() *schema.Resource {
 			"customer_id": {
 				Required: true,
 				Type:     schema.TypeString,
-				Elem:     schema.TypeString,
 			},
 			"project_id": {
 				Required: true,
 				Type:     schema.TypeString,
-				Elem:     schema.TypeString,
 			},
 			"platform_id": {
 				Required: true,
 				Type:     schema.TypeString,
-				Elem:     schema.TypeString,
 			},
 			"tenant_id": {
 				Optional: true,
 				Type:     schema.TypeString,
-				Elem:     schema.TypeString,
 			},
 			"landing_zone_id": {
 				Required: true,
 				Type:     schema.TypeString,
-				Elem:     schema.TypeString,
 			},
 		},
 	}

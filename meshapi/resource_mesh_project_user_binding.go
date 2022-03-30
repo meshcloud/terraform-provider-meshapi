@@ -20,22 +20,18 @@ func resourceMeshProjectUserBindingSchema() *schema.Resource {
 			"role_name": {
 				Required: true,
 				Type:     schema.TypeString,
-				Elem:     schema.TypeString,
 			},
 			"customer_id": {
 				Required: true,
 				Type:     schema.TypeString,
-				Elem:     schema.TypeString,
 			},
 			"project_id": {
 				Required: true,
 				Type:     schema.TypeString,
-				Elem:     schema.TypeString,
 			},
 			"user_id": {
 				Required: true,
 				Type:     schema.TypeString,
-				Elem:     schema.TypeString,
 			},
 		},
 	}

@@ -20,17 +20,14 @@ func resourceMeshCustomerSchema() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 				Type:     schema.TypeString,
-				Elem:     schema.TypeString,
 			},
 			"display_name": {
 				Required: true,
 				Type:     schema.TypeString,
-				Elem:     schema.TypeString,
 			},
 			"tags": {
 				Optional: true,
 				Type:     schema.TypeString,
-				Elem:     schema.TypeString,
 			},
 		},
 	}

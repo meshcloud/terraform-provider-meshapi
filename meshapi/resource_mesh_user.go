@@ -19,32 +19,26 @@ func resourceMeshUserSchema() *schema.Resource {
 			"name": {
 				Required: true,
 				Type:     schema.TypeString,
-				Elem:     schema.TypeString,
 			},
 			"email": {
 				Required: true,
 				Type:     schema.TypeString,
-				Elem:     schema.TypeString,
 			},
 			"euid": {
 				Required: true,
 				Type:     schema.TypeString,
-				Elem:     schema.TypeString,
 			},
 			"first_name": {
 				Required: true,
 				Type:     schema.TypeString,
-				Elem:     schema.TypeString,
 			},
 			"last_name": {
 				Required: true,
 				Type:     schema.TypeString,
-				Elem:     schema.TypeString,
 			},
 			"tags": {
 				Optional: true,
 				Type:     schema.TypeString,
-				Elem:     schema.TypeString,
 				Default:  "{}",
 			},
 		},

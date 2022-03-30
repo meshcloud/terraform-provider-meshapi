@@ -13,22 +13,18 @@ func dataSourceMeshProjectSchema() *schema.Resource {
 			"name": {
 				Required: true,
 				Type:     schema.TypeString,
-				Elem:     schema.TypeString,
 			},
 			"customer_id": {
 				Required: true,
 				Type:     schema.TypeString,
-				Elem:     schema.TypeString,
 			},
 			"display_name": {
 				Computed: true,
 				Type:     schema.TypeString,
-				Elem:     schema.TypeString,
 			},
 			"tags": {
 				Computed: true,
 				Type:     schema.TypeString,
-				Elem:     schema.TypeString,
 			},
 		},
 	}
