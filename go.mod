@@ -1,4 +1,4 @@
-module github.com/DorukAkinci/terraform-provider-meshapi
+module github.com/meshcloud/terraform-provider-meshapi
 
 require github.com/hashicorp/terraform-plugin-sdk/v2 v2.12.0
 

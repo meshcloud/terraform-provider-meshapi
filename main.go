@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/DorukAkinci/terraform-provider-meshapi/meshapi"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/plugin"
+	"github.com/meshcloud/terraform-provider-meshapi/meshapi"
 )
 
 func main() {
