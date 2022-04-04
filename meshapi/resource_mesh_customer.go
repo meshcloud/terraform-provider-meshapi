@@ -28,6 +28,7 @@ func resourceMeshCustomerSchema() *schema.Resource {
 			"tags": {
 				Optional: true,
 				Type:     schema.TypeString,
+				Default:  "{}",
 			},
 		},
 	}

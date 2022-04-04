@@ -41,6 +41,7 @@ func Provider() *schema.Provider {
 			"meshapi_mesh_project_user_binding":  resourceMeshProjectUserBindingSchema(),
 			"meshapi_mesh_tenant":                resourceMeshTenantSchema(),
 			"meshapi_mesh_user":                  resourceMeshUserSchema(),
+			"meshapi_mesh_payment_method":        resourceMeshPaymentMethodSchema(),
 		},
 	}
 }

@@ -8,11 +8,11 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
-func resourceMeshProjectSchema() *schema.Resource {
+func resourceMeshPaymentMethodSchema() *schema.Resource {
 	return &schema.Resource{
-		Read:   commonMeshProjectRead,
-		Create: resourceMeshProjectCreateAndUpdate,
-		Update: resourceMeshProjectCreateAndUpdate,
+		Read:   commonMeshPaymentMethodRead,
+		Create: resourceMeshPaymentMethodCreateAndUpdate,
+		Update: resourceMeshPaymentMethodCreateAndUpdate,
 		Delete: schema.Noop,
 
 		Schema: map[string]*schema.Schema{
@@ -35,11 +35,19 @@ func resourceMeshProjectSchema() *schema.Resource {
 				Type:     schema.TypeString,
 				Default:  "{}",
 			},
+			"amount": {
+				Optional: true,
+				Type:     schema.TypeInt,
+			},
+			"expiration_date": {
+				Optional: true,
+				Type:     schema.TypeString,
+			},
 		},
 	}
 }
 
-func resourceMeshProjectCreateAndUpdate(d *schema.ResourceData, meta interface{}) (err error) {
+func resourceMeshPaymentMethodCreateAndUpdate(d *schema.ResourceData, meta interface{}) (err error) {
 	provider := meta.(ProviderClient)
 	client := provider.Client
 
@@ -51,16 +59,19 @@ func resourceMeshProjectCreateAndUpdate(d *schema.ResourceData, meta interface{}
 	resourceDisplayName := d.Get("display_name").(string)
 	resourceCustomerId := d.Get("customer_id").(string)
 	resourceTags := d.Get("tags").(string)
+	resourceAmount := d.Get("amount").(int)
+	resourceExpirationDate := d.Get("expiration_date").(string)
 
-	data := fmt.Sprintf(`{"apiVersion":"v1","kind":"meshProject","metadata":{"name":"%s","ownedByCustomer":"%s"},"spec":{"displayName":"%s","tags":%s}}`, resourceName, resourceCustomerId, resourceDisplayName, resourceTags)
+	// ADD EXPIRATION DATE
+	data := fmt.Sprintf(`{"apiVersion":"v1","kind":"meshPaymentMethod","metadata":{"name":"%s","ownedByCustomer":"%s"},"spec":{"displayName":"%s","amount":%d,"tags":%s}}`, resourceName, resourceCustomerId, resourceDisplayName, resourceAmount, resourceTags)
 
-	log.Printf("[DEBUG] MeshProject Create: %s", data)
+	log.Printf("[DEBUG] MeshPaymentMethod Create: %s", data)
 	response, err := client.executePutAPI(client.BaseUrl.String(), string(data), resourceHeaders)
-	log.Printf("[DEBUG] MeshProject Execute PutAPI Response: %s", response)
+	log.Printf("[DEBUG] MeshPaymentMethod Execute PutAPI Response: %s", response)
 
 	if err != nil {
 		d.SetId("")
-		return fmt.Errorf("Error creating MeshProject: %s", err)
+		return fmt.Errorf("Error creating MeshPaymentMethod: %s", err)
 	}
 
 	d.SetId(resourceName)
@@ -68,5 +79,7 @@ func resourceMeshProjectCreateAndUpdate(d *schema.ResourceData, meta interface{}
 	d.Set("display_name", resourceDisplayName)
 	d.Set("customer_id", resourceCustomerId)
 	d.Set("tags", resourceTags)
+	d.Set("amount", resourceAmount)
+	d.Set("expiration_date", resourceExpirationDate)
 	return
 }
