@@ -1,7 +1,7 @@
-GO_OS := $(shell go env GOOS)
-GO_ARCH := $(shell go env GOARCH)
+GO_OS := `go env GOOS`
+GO_ARCH := `go env GOARCH`
 
-build:
+build: tidy
 	go build
 
 tidy:
@@ -9,7 +9,7 @@ tidy:
 	go mod vendor
 
 update-provider: build
-	mv terraform-provider-meshapi ~/.terraform.d/plugins/registry.terraform.io/hashicorp/meshapi/1.0.0/${GO_OS}_${GO_ARCH}/terraform-provider-meshapi
+	mv terraform-provider-meshapi ~/.terraform.d/plugins/registry.terraform.io/hashicorp/meshapi/1.0.0/{{GO_OS}}_{{GO_ARCH}}/terraform-provider-meshapi
 
 tf-apply:
 	terraform init && terraform apply -auto-approve
