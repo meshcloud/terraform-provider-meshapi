@@ -1,7 +1,7 @@
 provider "meshapi" {
-    url = "https://DEMO.meshstack.io"
+    url = "..." # Example: url = "https://federation.demo.meshstack.io"
     headers = {
-        Authorization = "BASE64_VAL"
+        Authorization = "Basic ..." # The three dots must be replaced with the BASE64 decoded value of `username:password` (without the ticks)
     }
 }
 
@@ -29,7 +29,7 @@ resource "meshapi_mesh_project" "demo_app" {
 
 // GET DEMO USER'S DATA TO SHOW DATA USAGE
 data "meshapi_mesh_user" "demo" {
-    name = "DEMO@meshcloud.io"
+    name = "..." # Example: name = "demo-user@meshcloud.io"
 }
 
 resource "meshapi_mesh_customer_user_binding" "demo_user_customer_owner_access" {
