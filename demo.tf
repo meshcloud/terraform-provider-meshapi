@@ -10,7 +10,7 @@ resource "meshapi_mesh_customer" "demo_customer" {
     display_name = "My Demo Customer"
     tags = jsonencode(
         {
-            CustomerContact = "AdminUser"
+            CustomerContact = [ "AdminUser" ]
         }
     )
 }
@@ -21,8 +21,9 @@ resource "meshapi_mesh_project" "demo_app" {
     customer_id = meshapi_mesh_customer.demo_customer.id
     tags = jsonencode(
         {
-            ProjectContact = "DeveloperUser"
-            CostCenter = 0000
+            ProjectContact = [ "DeveloperUser" ]
+            EnvironmentTag = [ "Production" ]
+            SomeIntegerTag = [ 0000 ]
         }
     )
 }
