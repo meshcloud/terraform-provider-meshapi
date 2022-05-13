@@ -9,7 +9,7 @@ tidy:
 	go mod vendor
 
 update-provider: build
-	mv terraform-provider-meshapi ~/.terraform.d/plugins/registry.terraform.io/hashicorp/meshapi/1.0.0/{{GO_OS}}_{{GO_ARCH}}/terraform-provider-meshapi
+	mkdir -p ~/.terraform.d/plugins/registry.terraform.io/hashicorp/meshapi/1.0.0/{{GO_OS}}_{{GO_ARCH}}/; mv terraform-provider-meshapi $_
 
 tf-apply:
 	terraform init && terraform apply -auto-approve
