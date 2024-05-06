@@ -1,2 +1,2 @@
-# Terraform Provider meshAPI
-This is an experimental Terraform provider and it is not fully mature yet. Some of the terraform features like destroying the resources will not work.
+# This experimental terraform provider is archived
+Please have a look at meshStack's official terraform provider at https://github.com/meshcloud/terraform-provider-meshstack
